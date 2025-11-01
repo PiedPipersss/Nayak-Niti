@@ -1,12 +1,11 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  Shield,
-  LogOut,
   Users,
   TrendingUp,
   FileText,
@@ -14,21 +13,13 @@ import {
   Search,
   ChevronRight,
   AlertCircle,
-  CheckCircle,
   Clock,
   DollarSign,
   Scale,
   Award,
-  BarChart3,
 } from "lucide-react";
-import YourRepresentatives from "@/components/dashboard/YourRepresentatives";
-import PoliciesAffectingYou from "@/components/dashboard/PoliciesAffectingYou";
-import Link from "next/link";
 
 interface UserPreferences {
-  constituency: string;
-  district?: string;
-  topics: string[];
   location: string;
   interests: string[];
 }
@@ -64,7 +55,6 @@ interface Project {
 }
 
 export default function Dashboard() {
-//   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
@@ -135,25 +125,21 @@ export default function Dashboard() {
   ]);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-    } else if (status === "authenticated") {
-      // Check if location is passed from homepage
-      const locationParam = searchParams.get("location");
-      if (locationParam) {
-        setSelectedLocation(locationParam);
-        setPreferences({ location: locationParam, interests: [] });
-        setLoading(false);
-      } else {
-        // Load saved preferences
-        loadPreferences();
-      }
+    // Check if location is passed from homepage
+    const locationParam = searchParams.get('location');
+    if (locationParam) {
+      setSelectedLocation(locationParam);
+      setPreferences({ location: locationParam, interests: [] });
+      setLoading(false);
+    } else {
+      // Load saved preferences
+      loadPreferences();
     }
-  }, [status, router, searchParams]);
+  }, [searchParams]);
 
   const loadPreferences = async () => {
     // Simulate loading from localStorage or API
-    const savedLocation = localStorage.getItem("userLocation");
+    const savedLocation = localStorage.getItem('userLocation');
     if (savedLocation) {
       setPreferences({ location: savedLocation, interests: [] });
       setSelectedLocation(savedLocation);
@@ -166,23 +152,11 @@ export default function Dashboard() {
     if (searchQuery.trim()) {
       setSelectedLocation(searchQuery);
       setPreferences({ location: searchQuery, interests: [] });
-      localStorage.setItem("userLocation", searchQuery);
+      localStorage.setItem('userLocation', searchQuery);
     }
   };
 
-  // Extract state from constituency (assuming format like "Pune South, Maharashtra")
-  const extractState = (constituency: string) => {
-    // Try to extract state from constituency string
-    // This is a simple implementation - you might need to adjust based on your data format
-    const parts = constituency.split(",");
-    if (parts.length > 1) {
-      return parts[1].trim();
-    }
-    // Default fallback - you might want to add a proper state mapping
-    return preferences?.district || "Maharashtra";
-  };
-
-  if (loading || status === "loading") {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#ECEFF1] flex items-center justify-center">
         <div className="text-center">
@@ -201,18 +175,13 @@ export default function Dashboard() {
           <div className="max-w-2xl mx-auto">
             <Card className="shadow-2xl border-2 border-[#FF9800]">
               <CardHeader className="text-center bg-gradient-to-r from-[#FF9800] to-[#F57C00] text-white rounded-t-xl">
-                <CardTitle className="text-3xl font-bold">
-                  Welcome to Your Dashboard!
-                </CardTitle>
+                <CardTitle className="text-3xl font-bold">Welcome to Your Dashboard!</CardTitle>
                 <p className="text-orange-100 mt-2">
                   Enter your location to get personalized political insights
                 </p>
               </CardHeader>
               <CardContent className="p-8">
-                <form
-                  onSubmit={handleLocationSubmit}
-                  className="space-y-4"
-                >
+                <form onSubmit={handleLocationSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Your Constituency or City
@@ -230,9 +199,7 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-sm font-semibold text-gray-600">
-                      Popular Locations:
-                    </p>
+                    <p className="text-sm font-semibold text-gray-600">Popular Locations:</p>
                     <div className="flex flex-wrap gap-2">
                       {["Pune South", "Mumbai North", "Bengaluru Urban", "Hyderabad", "Delhi Central"].map((loc) => (
                         <button
@@ -311,9 +278,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Representatives</p>
-                  <p className="text-3xl font-bold text-[#263238]">
-                    {politicians.length}
-                  </p>
+                  <p className="text-3xl font-bold text-[#263238]">{politicians.length}</p>
                 </div>
                 <Users className="w-10 h-10 text-[#FF9800]" />
               </div>
@@ -325,9 +290,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Active Bills</p>
-                  <p className="text-3xl font-bold text-[#263238]">
-                    {bills.length}
-                  </p>
+                  <p className="text-3xl font-bold text-[#263238]">{bills.length}</p>
                 </div>
                 <FileText className="w-10 h-10 text-[#00BCD4]" />
               </div>
@@ -339,9 +302,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Local Projects</p>
-                  <p className="text-3xl font-bold text-[#263238]">
-                    {projects.length}
-                  </p>
+                  <p className="text-3xl font-bold text-[#263238]">{projects.length}</p>
                 </div>
                 <TrendingUp className="w-10 h-10 text-[#4CAF50]" />
               </div>
@@ -382,17 +343,14 @@ export default function Dashboard() {
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF9800] to-[#F57C00] flex items-center justify-center text-white font-bold text-xl">
-                          {politician.name.split(" ").map((n) => n[0]).join("")}
+                          {politician.name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
                             <div>
-                              <h3 className="text-lg font-bold text-[#263238]">
-                                {politician.name}
-                              </h3>
+                              <h3 className="text-lg font-bold text-[#263238]">{politician.name}</h3>
                               <p className="text-sm text-gray-600">
-                                {politician.position} • {politician.party} •{" "}
-                                {politician.constituency}
+                                {politician.position} • {politician.party} • {politician.constituency}
                               </p>
                             </div>
                             <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -400,40 +358,20 @@ export default function Dashboard() {
 
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
                             <div className="bg-green-50 rounded-lg p-2 text-center">
-                              <p className="text-xs text-gray-600 mb-1">
-                                Attendance
-                              </p>
-                              <p className="text-sm font-bold text-[#4CAF50]">
-                                {politician.attendance}%
-                              </p>
+                              <p className="text-xs text-gray-600">Attendance</p>
+                              <p className="text-sm font-bold text-[#4CAF50]">{politician.attendance}%</p>
                             </div>
                             <div className="bg-blue-50 rounded-lg p-2 text-center">
-                              <p className="text-xs text-gray-600 mb-1">Bills</p>
-                              <p className="text-sm font-bold text-[#2196F3]">
-                                {politician.bills}
-                              </p>
+                              <p className="text-xs text-gray-600">Bills</p>
+                              <p className="text-sm font-bold text-[#2196F3]">{politician.bills}</p>
                             </div>
                             <div className="bg-yellow-50 rounded-lg p-2 text-center">
-                              <p className="text-xs text-gray-600 mb-1">Assets</p>
-                              <p className="text-sm font-bold text-[#FFC107]">
-                                {politician.assets}
-                              </p>
+                              <p className="text-xs text-gray-600">Assets</p>
+                              <p className="text-sm font-bold text-[#FFC107]">{politician.assets}</p>
                             </div>
-                            <div
-                              className={`${
-                                politician.criminalCases === 0
-                                  ? "bg-green-50"
-                                  : "bg-red-50"
-                              } rounded-lg p-2 text-center`}
-                            >
-                              <p className="text-xs text-gray-600 mb-1">Cases</p>
-                              <p
-                                className={`text-sm font-bold ${
-                                  politician.criminalCases === 0
-                                    ? "text-[#4CAF50]"
-                                    : "text-red-600"
-                                }`}
-                              >
+                            <div className={`${politician.criminalCases === 0 ? 'bg-green-50' : 'bg-red-50'} rounded-lg p-2 text-center`}>
+                              <p className="text-xs text-gray-600">Cases</p>
+                              <p className={`text-sm font-bold ${politician.criminalCases === 0 ? 'text-[#4CAF50]' : 'text-red-600'}`}>
                                 {politician.criminalCases}
                               </p>
                             </div>
@@ -463,12 +401,8 @@ export default function Dashboard() {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="text-lg font-bold text-[#263238]">
-                            {project.name}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {project.status}
-                          </p>
+                          <h3 className="text-lg font-bold text-[#263238]">{project.name}</h3>
+                          <p className="text-sm text-gray-600">{project.status}</p>
                         </div>
                         <span className="bg-[#00BCD4] text-white text-xs px-3 py-1 rounded-full">
                           {project.progress}%
@@ -517,25 +451,17 @@ export default function Dashboard() {
                       className="bg-white border-2 border-gray-200 rounded-lg p-3 hover:border-[#4CAF50] hover:shadow-sm transition-all cursor-pointer"
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="text-sm font-bold text-[#263238] flex-1">
-                          {bill.title}
-                        </h4>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            bill.status === "Passed"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
+                        <h4 className="text-sm font-bold text-[#263238] flex-1">{bill.title}</h4>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          bill.status === 'Passed' 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}>
                           {bill.status}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">
-                        {bill.description}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(bill.date).toLocaleDateString()}
-                      </p>
+                      <p className="text-xs text-gray-600 mb-2">{bill.description}</p>
+                      <p className="text-xs text-gray-500">{new Date(bill.date).toLocaleDateString()}</p>
                     </div>
                   ))}
                 </div>
@@ -550,19 +476,13 @@ export default function Dashboard() {
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <Button
-                    onClick={() => router.push("/fact-checker")}
+                    onClick={() => router.push('/fact-checker')}
                     className="w-full bg-gradient-to-r from-[#4CAF50] to-[#388E3C] hover:from-[#388E3C] hover:to-[#2E7D32] text-white justify-start"
                   >
                     <Scale className="w-4 h-4 mr-2" />
                     Verify Facts
                   </Button>
-                  <Button
-                    onClick={() => router.push("/chat")}
-                    className="w-full bg-gradient-to-r from-[#9C27B0] to-[#7B1FA2] hover:from-[#7B1FA2] hover:to-[#6A1B9A] text-white justify-start"
-                  >
-                    <Users className="w-4 h-4 mr-2" />
-                    Ask AI Assistant
-                  </Button>
+                 
                   <Button
                     variant="outline"
                     className="w-full border-2 border-[#FF9800] text-[#FF9800] hover:bg-[#FF9800] hover:text-white justify-start"
@@ -575,17 +495,6 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function WidgetPlaceholder({ title }: { title: string }) {
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-lg border border-[#ECEFF1]">
-      <h3 className="text-xl font-bold text-[#263238] mb-4">{title}</h3>
-      <div className="text-[#424242]">
-        <p>Coming soon...</p>
       </div>
     </div>
   );

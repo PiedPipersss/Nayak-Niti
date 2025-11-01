@@ -36,8 +36,8 @@ const NavbarSimple = () => {
   const navLinks = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/dashboard', label: 'Dashboard', icon: Users },
-    { href: '/fact-checker', label: 'Fact Checker', icon: Shield },
-    { href: '/chat', label: 'AI Assistant', icon: Bot },
+    { href: '/fact-checker', label: 'Fact Checker', icon: Shield }
+  
   ];
 
   const isActive = (href: string) => {
