@@ -1,29 +1,20 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Search, Users, TrendingUp, BookOpen, Shield } from "lucide-react";
+import { useState } from "react";
+import { Search, Users, TrendingUp, BookOpen, Shield, Bot, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [quickTopic, setQuickTopic] = useState<string | null>(null);
-
-  useEffect(() => {
-    // if already signed in, let onboarding/dashboard logic handle routing
-    if (session?.user) {
-      // no auto-redirect here to let user explore
-    }
-  }, [session]);
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
     const loc = (quickTopic || query).trim();
     if (!loc) return;
-    signIn("google", { callbackUrl: `/onboarding?location=${encodeURIComponent(loc)}` });
+    router.push(`/dashboard?location=${encodeURIComponent(loc)}`);
   };
 
   const QUICK_LOCATIONS = ["Pune South", "Mumbai North", "Bengaluru Urban", "Hyderabad"];
@@ -41,15 +32,9 @@ export default function LandingPage() {
             <a className="hover:text-[#0097A7]" href="#how">How it works</a>
             <a className="hover:text-[#0097A7]" href="#testimonials">Stories</a>
           </nav>
-          {!session ? (
-            <button onClick={() => signIn("google")} className="px-4 py-2 rounded-md bg-[#FF9800] text-white hover:bg-[#FFB74D] font-semibold">
-              Sign in
-            </button>
-          ) : (
-            <button onClick={() => router.push("/dashboard")} className="px-4 py-2 rounded-md border border-[#00BCD4] text-[#263238] font-semibold">
-              Open Hub
-            </button>
-          )}
+          <button onClick={() => router.push("/dashboard")} className="px-4 py-2 rounded-md border border-[#00BCD4] text-[#263238] font-semibold">
+            Open Hub
+          </button>
         </div>
       </header>
 
@@ -91,6 +76,7 @@ export default function LandingPage() {
                 {QUICK_LOCATIONS.map((loc) => (
                   <button
                     key={loc}
+                    type="button"
                     onClick={() => { setQuickTopic(loc); setQuery(""); setTimeout(() => handleSearch(), 80); }}
                     className={`text-sm px-3 py-1 rounded-full border ${quickTopic === loc ? "bg-[#00BCD4] text-white border-[#00BCD4]" : "bg-white text-[#263238] border-[#00BCD4] hover:bg-[#0097A7] hover:text-white"}`}
                   >
@@ -159,16 +145,49 @@ export default function LandingPage() {
         <section id="features" className="mt-16">
           <h3 className="text-2xl font-bold text-[#263238] mb-6">What you get</h3>
           <div className="grid md:grid-cols-3 gap-6">
-            <FeatureCard icon={<Users className="w-6 h-6 text-[#FF9800]" />} title="Stance Tracker" text="Profiles, votes and public stances for your MP & MLA." />
-            <FeatureCard icon={<TrendingUp className="w-6 h-6 text-[#0097A7]" />} title="Local Tracker" text="Project statuses, timelines and public sentiment." />
-            <FeatureCard icon={<BookOpen className="w-6 h-6 text-[#00BCD4]" />} title="Policy Explainer" text="AI-powered plain-language summaries of policies." />
+            <FeatureCard 
+              icon={<Users className="w-6 h-6 text-[#FF9800]" />} 
+              title="Politician Profiles" 
+              text="Comprehensive profiles with voting records, assets, criminal cases, and performance metrics."
+              link="/dashboard"
+            />
+            <FeatureCard 
+              icon={<TrendingUp className="w-6 h-6 text-[#0097A7]" />} 
+              title="Bill Tracker" 
+              text="Track parliamentary bills, understand their impact, and see voting patterns in real-time."
+              link="/bills"
+            />
+            <FeatureCard 
+              icon={<Shield className="w-6 h-6 text-[#4CAF50]" />} 
+              title="Fact Checker" 
+              text="AI-powered verification of political claims with source credibility analysis."
+              link="/fact-checker"
+            />
+            <FeatureCard 
+              icon={<Bot className="w-6 h-6 text-[#9C27B0]" />} 
+              title="AI Political Assistant" 
+              text="Chat with AI to understand Indian politics, policies, and governance."
+              link="/chat"
+            />
+            <FeatureCard 
+              icon={<TrendingUp className="w-6 h-6 text-[#2196F3]" />} 
+              title="Performance Analytics" 
+              text="Data-driven insights on politician performance, promises vs delivery."
+              link="/dashboard"
+            />
+            <FeatureCard 
+              icon={<Award className="w-6 h-6 text-[#FFC107]" />} 
+              title="Transparency Index" 
+              text="Unique scoring system measuring accountability and transparency."
+              link="/dashboard"
+            />
           </div>
         </section>
 
         <section id="testimonials" className="mt-12">
           <h3 className="text-2xl font-bold text-[#263238] mb-4">Voices from the community</h3>
           <div className="bg-white p-6 rounded-xl shadow-md max-w-2xl">
-            <p className="text-[#424242] italic">“Nayak Niti helped me finally understand how the new education policy affects my child’s school. Clear, unbiased, and local.”</p>
+            <p className="text-[#424242] italic">"Nayak Niti helped me finally understand how the new education policy affects my child's school. Clear, unbiased, and local."</p>
             <div className="mt-4 text-sm text-[#263238] font-semibold">— A Local Teacher</div>
           </div>
         </section>
@@ -195,9 +214,15 @@ function StatCard({ icon, title, value, color }: { icon: React.ReactNode; title:
   );
 }
 
-function FeatureCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string; }) {
+function FeatureCard({ icon, title, text, link }: { icon: React.ReactNode; title: string; text: string; link?: string; }) {
+  const router = useRouter();
+  
   return (
-    <motion.div whileHover={{ y: -6 }} className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+    <motion.div 
+      whileHover={{ y: -6 }} 
+      onClick={() => link && router.push(link)}
+      className={`bg-white p-5 rounded-xl shadow hover:shadow-lg transition ${link ? 'cursor-pointer' : ''}`}
+    >
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-md bg-[#FAFAFA] flex items-center justify-center">{icon}</div>
         <h4 className="text-lg font-semibold text-[#263238]">{title}</h4>

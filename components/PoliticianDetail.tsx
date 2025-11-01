@@ -171,7 +171,12 @@ const PoliticianDetail: React.FC<PoliticianDetailProps> = ({ politician }) => {
         </TabsContent>
 
         <TabsContent value="news" className="mt-6">
-          <PoliticianNews politicianName={politician.mp_name} />
+          <PoliticianNews 
+            politicianName={politician.mp_name}
+            constituency={politician.pc_name}
+            state={politician.state}
+            party={politician.mp_political_party}
+          />
         </TabsContent>
       </Tabs>
     </div>

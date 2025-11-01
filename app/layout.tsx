@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import SessionProvider from "@/components/providers/SessionProvider";
+import ChatBot from "@/components/ChatBot";
+import NavbarSimple from "@/components/NavbarSimple";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nayak Niti - Political Awareness Hub",
-  description: "Get the non-partisan truth about your local politics. No noise, just data.",
+  title: "NayaNiti - Know Your Neta",
+  description: "Empowering citizens with transparent political information",
 };
 
 export default function RootLayout({
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider>{children}</SessionProvider>
+        <NavbarSimple />
+        {children}
+        <ChatBot />
       </body>
     </html>
   );
